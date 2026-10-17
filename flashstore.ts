@@ -3,27 +3,18 @@ namespace flashstore {
 
 	let lastCode = 0
 
-	// В симуляторе C++ не работает, поэтому там данные лежат в памяти и пропадают при перезапуске.
+	// Тела функций ниже работают только в симуляторе (в памяти, пропадают при перезапуске).
+	// На плате вызывается C++ из shim.cpp, и эти тела не используются.
 	let simKeys: string[] = []
 	let simValues: string[] = []
-
-	function inSimulator(): boolean {
-		return control.deviceDalVersion() == "sim"
-	}
 
 	function simIndex(key: string): number {
 		return simKeys.indexOf(key)
 	}
 
-	function validKey(key: string): boolean {
-		return key.length >= 1 && key.length <= 15
-	}
-
-	function rawWrite(key: string, value: string): number {
-		if (!inSimulator())
-			return writeRaw(key, value)
-
-		if (!validKey(key) || value.length > 1024)
+	//% shim=flashstore::writeRaw
+	function writeRaw(key: string, value: string): number {
+		if (key.length < 1 || key.length > 15 || value.length > 1024)
 			return -1001
 
 		let i = simIndex(key)
@@ -38,26 +29,20 @@ namespace flashstore {
 		return 0
 	}
 
-	function rawRead(key: string): string {
-		if (!inSimulator())
-			return readRaw(key)
-
+	//% shim=flashstore::readRaw
+	function readRaw(key: string): string {
 		let i = simIndex(key)
 
 		return i < 0 ? "" : simValues[i]
 	}
 
-	function rawHas(key: string): boolean {
-		if (!inSimulator())
-			return hasKey(key) != 0
-
-		return simIndex(key) >= 0
+	//% shim=flashstore::hasKey
+	function hasKey(key: string): number {
+		return simIndex(key) >= 0 ? 1 : 0
 	}
 
-	function rawRemove(key: string): number {
-		if (!inSimulator())
-			return removeKey(key)
-
+	//% shim=flashstore::removeKey
+	function removeKey(key: string): number {
 		let i = simIndex(key)
 
 		if (i < 0)
@@ -68,10 +53,8 @@ namespace flashstore {
 		return 0
 	}
 
-	function rawClear(): number {
-		if (!inSimulator())
-			return clearAll()
-
+	//% shim=flashstore::clearAll
+	function clearAll(): number {
 		simKeys = []
 		simValues = []
 		return 0
@@ -83,7 +66,7 @@ namespace flashstore {
 	//% block="сохранить во flash %key = %value"
 	//% weight=100
 	export function writeString(key: string, value: string): void {
-		lastCode = rawWrite(key, value)
+		lastCode = writeRaw(key, value)
 	}
 
 	/**
@@ -92,7 +75,7 @@ namespace flashstore {
 	//% block="сохранить во flash число %key = %value"
 	//% weight=95
 	export function writeNumber(key: string, value: number): void {
-		lastCode = rawWrite(key, value.toString())
+		lastCode = writeRaw(key, value.toString())
 	}
 
 	/**
@@ -101,7 +84,7 @@ namespace flashstore {
 	//% block="прочитать из flash текст %key"
 	//% weight=90
 	export function readString(key: string): string {
-		return rawRead(key)
+		return readRaw(key)
 	}
 
 	/**
@@ -110,10 +93,10 @@ namespace flashstore {
 	//% block="прочитать из flash число %key || по умолчанию %defaultValue"
 	//% weight=85 defaultValue.defl=0
 	export function readNumber(key: string, defaultValue: number = 0): number {
-		if (!rawHas(key))
+		if (hasKey(key) == 0)
 			return defaultValue
 
-		return parseFloat(rawRead(key))
+		return parseFloat(readRaw(key))
 	}
 
 	/**
@@ -122,7 +105,7 @@ namespace flashstore {
 	//% block="во flash есть %key"
 	//% weight=80
 	export function exists(key: string): boolean {
-		return rawHas(key)
+		return hasKey(key) != 0
 	}
 
 	/**
@@ -131,7 +114,7 @@ namespace flashstore {
 	//% block="удалить из flash %key"
 	//% weight=70
 	export function remove(key: string): void {
-		lastCode = rawRemove(key)
+		lastCode = removeKey(key)
 	}
 
 	/**
@@ -140,7 +123,7 @@ namespace flashstore {
 	//% block="очистить flash"
 	//% weight=60
 	export function clear(): void {
-		lastCode = rawClear()
+		lastCode = clearAll()
 	}
 
 	/**
