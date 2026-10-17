@@ -1,4 +1,7 @@
 #include "FlashStore.h"
+
+#if MICROBIT_CODAL
+
 #include "MicroBitConfig.h"
 #include <string.h>
 #include <stdlib.h>
@@ -452,3 +455,5 @@ int FlashStore::clear()
 
 	return compact(NULL, NULL, 0, false, true);
 }
+
+#endif // MICROBIT_CODAL

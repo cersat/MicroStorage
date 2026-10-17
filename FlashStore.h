@@ -1,6 +1,10 @@
 #ifndef FLASH_STORE_H
 #define FLASH_STORE_H
 
+#include "pxt.h"
+
+#if MICROBIT_CODAL
+
 #include "MicroBit.h"
 #include "MicroBitFlash.h"
 #include <stdint.h>
@@ -116,5 +120,7 @@ class FlashStore
 	static uint32_t align4(uint32_t n);
 	static uint32_t encode(uint8_t* out, const char* key, const void* data, int len, bool tombstone);
 };
+
+#endif // MICROBIT_CODAL
 
 #endif
