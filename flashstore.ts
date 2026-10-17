@@ -7,11 +7,8 @@ namespace flashstore {
 	let simKeys: string[] = []
 	let simValues: string[] = []
 
-	// true, как только поняли, что работаем в симуляторе (нативные функции там не существуют)
-	let forceSim = false
-
 	function inSimulator(): boolean {
-		return forceSim || control.deviceDalVersion() == "sim"
+		return control.deviceDalVersion() == "sim"
 	}
 
 	function simIndex(key: string): number {
@@ -23,13 +20,8 @@ namespace flashstore {
 	}
 
 	function rawWrite(key: string, value: string): number {
-		if (!inSimulator()) {
-			try {
-				return writeRaw(key, value)
-			} catch (e) {
-				forceSim = true
-			}
-		}
+		if (!inSimulator())
+			return writeRaw(key, value)
 
 		if (!validKey(key) || value.length > 1024)
 			return -1001
@@ -47,13 +39,8 @@ namespace flashstore {
 	}
 
 	function rawRead(key: string): string {
-		if (!inSimulator()) {
-			try {
-				return readRaw(key)
-			} catch (e) {
-				forceSim = true
-			}
-		}
+		if (!inSimulator())
+			return readRaw(key)
 
 		let i = simIndex(key)
 
@@ -61,25 +48,15 @@ namespace flashstore {
 	}
 
 	function rawHas(key: string): boolean {
-		if (!inSimulator()) {
-			try {
-				return hasKey(key) != 0
-			} catch (e) {
-				forceSim = true
-			}
-		}
+		if (!inSimulator())
+			return hasKey(key) != 0
 
 		return simIndex(key) >= 0
 	}
 
 	function rawRemove(key: string): number {
-		if (!inSimulator()) {
-			try {
-				return removeKey(key)
-			} catch (e) {
-				forceSim = true
-			}
-		}
+		if (!inSimulator())
+			return removeKey(key)
 
 		let i = simIndex(key)
 
@@ -92,13 +69,8 @@ namespace flashstore {
 	}
 
 	function rawClear(): number {
-		if (!inSimulator()) {
-			try {
-				return clearAll()
-			} catch (e) {
-				forceSim = true
-			}
-		}
+		if (!inSimulator())
+			return clearAll()
 
 		simKeys = []
 		simValues = []
