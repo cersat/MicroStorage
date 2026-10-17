@@ -7,7 +7,6 @@ namespace flashstore {
 
 	static FlashStore store;
 
-	//%
 	int writeRaw(String key, String value)
 	{
 		if (!key || !value)
@@ -16,7 +15,6 @@ namespace flashstore {
 		return store.write(key->getUTF8Data(), value->getUTF8Data(), value->getUTF8Size());
 	}
 
-	//%
 	String readRaw(String key)
 	{
 		if (!key)
@@ -40,7 +38,6 @@ namespace flashstore {
 		return result;
 	}
 
-	//%
 	int hasKey(String key)
 	{
 		if (!key)
@@ -49,7 +46,6 @@ namespace flashstore {
 		return store.read(key->getUTF8Data(), NULL, 0) >= 0 ? 1 : 0;
 	}
 
-	//%
 	int removeKey(String key)
 	{
 		if (!key)
@@ -58,7 +54,6 @@ namespace flashstore {
 		return store.remove(key->getUTF8Data());
 	}
 
-	//%
 	int clearAll()
 	{
 		return store.clear();
