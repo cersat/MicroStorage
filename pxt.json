@@ -1,0 +1,21 @@
+{
+	"name": "flashstore",
+	"version": "0.1.0",
+	"description": "Хранение данных во flash micro:bit v2 между перезапусками",
+	"license": "MIT",
+	"dependencies": {
+		"core": "*"
+	},
+	"files": [
+		"README.md",
+		"flashstore.ts",
+		"shims.d.ts",
+		"shim.cpp",
+		"FlashStore.h",
+		"FlashStore.cpp"
+	],
+	"public": true,
+	"supportedTargets": [
+		"microbit"
+	]
+}
